@@ -18,6 +18,7 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     var spaceWidth = 45;
 
     var renderedChars = [];
+    var backspaced = false;
 
     var renderChar = function(charToRender) {
       if (charToRender.pathData) {
@@ -25,8 +26,15 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
 
         ctx.save();
         ctx.translate(charToRender.x, charToRender.y);
-        ctx.fillStyle = 'rgba(0, 0, 0, ' + (1 - (charToRender.holdTime / 1000)) + ')'
-        ctx.fill(p);
+        if (charToRender.fill) {
+          ctx.fillStyle = 'rgba(0, 0, 0, ' + (1 - (charToRender.holdTime / 1000)) + ')'
+          ctx.fill(p);
+        }
+        else {
+          ctx.lineWidth = 0.5;
+          ctx.strokeStyle = 'rgba(0, 0, 0, ' + (1 - (charToRender.holdTime / 1000)) + ')'
+          ctx.stroke(p);
+        }
         ctx.restore();
       }
     }
@@ -40,6 +48,8 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     }
 
     var charHandler = function(char, holdTime, delayTime) {
+      var isBackspace = backspaced;
+      backspaced = false;
       if (char == 'Enter') {
         var cursorY = lineHeight;
         if (renderedChars.length) {
@@ -91,7 +101,8 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
         pathData: newPathData,
         bbox: bbox,
         delayTime: delayTime,
-        holdTime: holdTime
+        holdTime: holdTime,
+        fill: !isBackspace,
       }
 
       var cursorX = 0;
@@ -110,6 +121,7 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     }
 
     var backspace = function() {
+      backspaced = true;
       renderedChars.pop();
       redraw();
     }
