@@ -14,18 +14,57 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     ctx.fillStyle = '#000'
     ctx.scale(0.5, 0.5);
 
-    var cursorX = 0;
-    var cursorY = 100;
+    var lineHeight = 100;
+    var spaceWidth = 45;
 
-    var i = 0;
+    var renderedChars = [];
+
+    var renderChar = function(charToRender) {
+      if (charToRender.pathData) {
+        var p = new Path2D(charToRender.pathData);
+
+        ctx.save();
+        ctx.translate(charToRender.x, charToRender.y);
+        ctx.fillStyle = 'rgba(0, 0, 0, ' + (1 - (charToRender.holdTime / 1000)) + ')'
+        ctx.fill(p);
+        ctx.restore();
+      }
+    }
+
+    var redraw = function() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      renderedChars.forEach(function(charToRender) {
+        renderChar(charToRender);
+        // console.log(charToRender.x + " " + charToRender.y);
+      });
+    }
+
     var charHandler = function(char, holdTime, delayTime) {
       if (char == 'Enter') {
-        cursorX = 0;
-        cursorY += 100;
+        var cursorY = lineHeight;
+        if (renderedChars.length) {
+          cursorY = renderedChars[renderedChars.length - 1].y;
+        }
+        renderedChars.push({
+          bbox: { width: 0 },
+          x: 0,
+          y: cursorY + lineHeight
+        });
         return;
       }
       if (char == ' ') {
-        ctx.translate(45, 0);
+        var cursorX = 0;
+        var cursorY = lineHeight;
+        if (renderedChars.length) {
+          cursorX = renderedChars[renderedChars.length - 1].x +
+                    renderedChars[renderedChars.length - 1].bbox.width;
+          cursorY = renderedChars[renderedChars.length - 1].y;
+        }
+        renderedChars.push({
+          bbox: { width: spaceWidth },
+          x: cursorX,
+          y: cursorY
+        });
         return;
       }
       if (char.length > 1) {
@@ -39,29 +78,43 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       var transformedPath = Snap.path.map(pathData,
                     new Snap.Matrix().scale(1 + delayTime / 1000, 1));
 
-      var commands = Snap.path.toCubic(transformedPath);
+      // var commands = Snap.path.toCubic(transformedPath);
       // var path = commandsToOpentypePath(commands);
 
-      var newPathData = commands.toString();
+      // var newPathData = commands.toString();
+      var newPathData = transformedPath;
+
       var bbox = Snap.path.getBBox(newPathData);
 
-      cursorX += bbox.width;
+      var charToRender = {
+        // commands: commands,
+        pathData: newPathData,
+        bbox: bbox,
+        delayTime: delayTime,
+        holdTime: holdTime
+      }
 
-      var p = new Path2D(newPathData);
+      var cursorX = 0;
+      var cursorY = lineHeight;
+      if (renderedChars.length) {
+        cursorX = renderedChars[renderedChars.length - 1].x +
+        renderedChars[renderedChars.length - 1].bbox.width;
+        cursorY = renderedChars[renderedChars.length - 1].y;
+      }
+      charToRender.x = cursorX;
+      charToRender.y = cursorY;
 
-      ctx.save();
-      ctx.translate(cursorX - bbox.width, cursorY);
-      ctx.fillStyle = 'rgba(0, 0, 0, ' + (1 - (holdTime / 1000)) + ')'
-      ctx.fill(p);
-      ctx.restore();
+      renderedChars.push(charToRender);
 
-
-      // glyph.path = path;
-      // glyph.draw(ctx, 18 * (i++), 100 + delayTime, holdTime);
-
+      redraw();
     }
 
-    processKeys(charHandler);
+    var backspace = function() {
+      renderedChars.pop();
+      redraw();
+    }
+
+    processKeys(charHandler, backspace);
   }
 });
 
@@ -86,7 +139,7 @@ function commandsToOpentypePath(commands) {
 }
 
 
-function processKeys(charHandler) {
+function processKeys(charHandler, backspace) {
 
   var textarea = document.getElementById('textarea');
 
@@ -98,6 +151,9 @@ function processKeys(charHandler) {
   textarea.addEventListener('keydown', function(e) {
     keysDownToHoldTime[e.key] = now();
     keysDownToDelayTime[e.key] = lastKeyUpTime ? now() - lastKeyUpTime : 0;
+    if (e.key == 'Backspace') {
+      backspace();
+    }
   });
 
   textarea.addEventListener('keypress', function(e) {
