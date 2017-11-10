@@ -11,14 +11,13 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     resize();
     window.onresize = resize;
     var ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#000'
     ctx.scale(0.5, 0.5);
 
     var lineHeight = 100;
     var spaceWidth = 45;
 
     var renderedChars = [];
-    var backspaced = false;
+    var backspaceCount = 0;
 
     var renderChar = function(charToRender) {
       if (charToRender.pathData) {
@@ -27,12 +26,12 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
         ctx.save();
         ctx.translate(charToRender.x, charToRender.y);
         if (charToRender.fill) {
-          ctx.fillStyle = 'rgba(0, 0, 0, ' + (1 - (charToRender.holdTime / 1000)) + ')'
+          ctx.fillStyle = 'rgba(0, 0, 0, ' + (1 - Math.min(0.9, charToRender.holdTime / 1000)) + ')'
           ctx.fill(p);
         }
         else {
           ctx.lineWidth = 0.5;
-          ctx.strokeStyle = 'rgba(0, 0, 0, ' + (1 - (charToRender.holdTime / 1000)) + ')'
+          ctx.strokeStyle = 'rgba(0, 0, 0, ' + (1 - Math.min(0.9, charToRender.holdTime / 1000)) + ')'
           ctx.stroke(p);
         }
         ctx.restore();
@@ -48,8 +47,10 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     }
 
     var charHandler = function(char, holdTime, delayTime) {
-      var isBackspace = backspaced;
-      backspaced = false;
+      var isBackspace = backspaceCount > 0;
+      if (isBackspace) {
+        backspaceCount--;
+      }
       if (char == 'Enter') {
         var cursorY = lineHeight;
         if (renderedChars.length) {
@@ -81,6 +82,7 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
         console.log(char);
         return;
       }
+
       var glyph = font.charToGlyph(char.toUpperCase());
 
       var pathData = glyph.getPath().toPathData();
@@ -121,7 +123,7 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     }
 
     var backspace = function() {
-      backspaced = true;
+      backspaceCount++;
       renderedChars.pop();
       redraw();
     }
@@ -154,6 +156,12 @@ function commandsToOpentypePath(commands) {
 function processKeys(charHandler, backspace) {
 
   var textarea = document.getElementById('textarea');
+  textarea.focus();
+
+  var wrapper = document.getElementById('canvas-text-editor');
+  wrapper.addEventListener('focus', function(e) {
+    textarea.focus();
+  });
 
   var keysDownToHoldTime = {};
   var keysDownToDelayTime = {};
