@@ -4,12 +4,7 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
 } else {
     var dummy = document.getElementById('dummycanvas');
     var canvas = document.getElementById('canvas');
-    var resize = function() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.onresize = resize;
+
     var ctx = canvas.getContext('2d');
     ctx.scale(0.5, 0.5);
 
@@ -39,12 +34,21 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     }
 
     var redraw = function() {
+      console.log(renderedChars)
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       renderedChars.forEach(function(charToRender) {
         renderChar(charToRender);
         // console.log(charToRender.x + " " + charToRender.y);
       });
     }
+
+    var resize = function() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      redraw();
+    };
+    resize();
+    window.onresize = resize;
 
     var charHandler = function(char, holdTime, delayTime) {
       var isBackspace = backspaceCount > 0;
@@ -57,38 +61,40 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
           cursorY = renderedChars[renderedChars.length - 1].y;
         }
         renderedChars.push({
-          bbox: { width: 0 },
+          advanceWidth: 0,
           x: 0,
           y: cursorY + lineHeight
         });
         return;
       }
-      if (char == ' ') {
-        var cursorX = 0;
-        var cursorY = lineHeight;
-        if (renderedChars.length) {
-          cursorX = renderedChars[renderedChars.length - 1].x +
-                    renderedChars[renderedChars.length - 1].bbox.width;
-          cursorY = renderedChars[renderedChars.length - 1].y;
-        }
-        renderedChars.push({
-          bbox: { width: spaceWidth },
-          x: cursorX,
-          y: cursorY
-        });
-        return;
-      }
+      // if (char == ' ') {
+      //   var cursorX = 0;
+      //   var cursorY = lineHeight;
+      //   if (renderedChars.length) {
+      //     cursorX = renderedChars[renderedChars.length - 1].x +
+      //               renderedChars[renderedChars.length - 1].advanceWidth;
+      //     cursorY = renderedChars[renderedChars.length - 1].y;
+      //   }
+      //   renderedChars.push({
+      //     advanceWidth: spaceWidth,
+      //     x: cursorX,
+      //     y: cursorY
+      //   });
+      //   return;
+      // }
       if (char.length > 1) {
         console.log(char);
         return;
       }
 
-      var glyph = font.charToGlyph(char.toUpperCase());
-
+      var s = char.toUpperCase();
+      var glyph = font.charToGlyph(s);
       var pathData = glyph.getPath().toPathData();
 
+      var xScaleFactor = 1 + delayTime / 1000;
+
       var transformedPath = Snap.path.map(pathData,
-                    new Snap.Matrix().scale(1 + delayTime / 1000, 1));
+                    new Snap.Matrix().scale(xScaleFactor, 1));
 
       // var commands = Snap.path.toCubic(transformedPath);
       // var path = commandsToOpentypePath(commands);
@@ -96,12 +102,13 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       // var newPathData = commands.toString();
       var newPathData = transformedPath;
 
-      var bbox = Snap.path.getBBox(newPathData);
+      var advanceWidth = font.getAdvanceWidth(s) * xScaleFactor;
 
       var charToRender = {
         // commands: commands,
+        glyph: glyph,
         pathData: newPathData,
-        bbox: bbox,
+        advanceWidth: advanceWidth,
         delayTime: delayTime,
         holdTime: holdTime,
         fill: !isBackspace,
@@ -111,7 +118,7 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       var cursorY = lineHeight;
       if (renderedChars.length) {
         cursorX = renderedChars[renderedChars.length - 1].x +
-        renderedChars[renderedChars.length - 1].bbox.width;
+        renderedChars[renderedChars.length - 1].advanceWidth;
         cursorY = renderedChars[renderedChars.length - 1].y;
       }
       charToRender.x = cursorX;
