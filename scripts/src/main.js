@@ -6,15 +6,16 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     var canvas = document.getElementById('canvas');
 
     var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
     ctx.scale(0.5, 0.5);
 
     var lineHeight = 100;
-    var spaceWidth = 45;
 
-    var renderedChars = [];
+    var charsToRender = [];
     var backspaceCount = 0;
 
-    var renderChar = function(charToRender) {
+    function renderChar(charToRender) {
       if (charToRender.pathData) {
         var p = new Path2D(charToRender.pathData);
 
@@ -33,57 +34,25 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       }
     }
 
-    var redraw = function() {
-      console.log(renderedChars)
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      renderedChars.forEach(function(charToRender) {
-        renderChar(charToRender);
-        // console.log(charToRender.x + " " + charToRender.y);
-      });
-    }
-
-    var resize = function() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      redraw();
-    };
-    resize();
-    window.onresize = resize;
-
-    var charHandler = function(char, holdTime, delayTime) {
+    function onCharHandler(char, holdTime, delayTime) {
       var isBackspace = backspaceCount > 0;
       if (isBackspace) {
         backspaceCount--;
       }
       if (char == 'Enter') {
         var cursorY = lineHeight;
-        if (renderedChars.length) {
-          cursorY = renderedChars[renderedChars.length - 1].y;
+        if (charsToRender.length) {
+          cursorY = charsToRender[charsToRender.length - 1].y;
         }
-        renderedChars.push({
+        charsToRender.push({
           advanceWidth: 0,
           x: 0,
           y: cursorY + lineHeight
         });
         return;
       }
-      // if (char == ' ') {
-      //   var cursorX = 0;
-      //   var cursorY = lineHeight;
-      //   if (renderedChars.length) {
-      //     cursorX = renderedChars[renderedChars.length - 1].x +
-      //               renderedChars[renderedChars.length - 1].advanceWidth;
-      //     cursorY = renderedChars[renderedChars.length - 1].y;
-      //   }
-      //   renderedChars.push({
-      //     advanceWidth: spaceWidth,
-      //     x: cursorX,
-      //     y: cursorY
-      //   });
-      //   return;
-      // }
       if (char.length > 1) {
-        console.log(char);
+        console.log('oh no,' + char);
         return;
       }
 
@@ -116,26 +85,27 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
 
       var cursorX = 0;
       var cursorY = lineHeight;
-      if (renderedChars.length) {
-        cursorX = renderedChars[renderedChars.length - 1].x +
-        renderedChars[renderedChars.length - 1].advanceWidth;
-        cursorY = renderedChars[renderedChars.length - 1].y;
+      if (charsToRender.length) {
+        cursorX = charsToRender[charsToRender.length - 1].x +
+        charsToRender[charsToRender.length - 1].advanceWidth;
+        cursorY = charsToRender[charsToRender.length - 1].y;
       }
       charToRender.x = cursorX;
       charToRender.y = cursorY;
 
-      renderedChars.push(charToRender);
+      charsToRender.push(charToRender);
 
-      redraw();
+      renderChar(charToRender);
     }
 
     var backspace = function() {
       backspaceCount++;
-      renderedChars.pop();
-      redraw();
+      var deleted = charsToRender.pop();
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(deleted.x, deleted.y - lineHeight, deleted.advanceWidth, lineHeight + 5)
     }
 
-    processKeys(charHandler, backspace);
+    processKeys(onCharHandler, backspace);
   }
 });
 
@@ -160,7 +130,7 @@ function commandsToOpentypePath(commands) {
 }
 
 
-function processKeys(charHandler, backspace) {
+function processKeys(onCharHandler, backspace) {
 
   var textarea = document.getElementById('textarea');
   textarea.focus();
@@ -198,7 +168,7 @@ function processKeys(charHandler, backspace) {
       if (delayTime > 5000) {
         delayTime = 0;
       }
-      charHandler(char, holdTime, delayTime);
+      onCharHandler(char, holdTime, delayTime);
     }
 
     delete keysDownToHoldTime[e.key];
