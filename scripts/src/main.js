@@ -1,4 +1,4 @@
-opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
+opentype.load('fonts/CDType - Dense Bold.otf', function(err, font) {
   if (err) {
      alert('Font could not be loaded: ' + err);
 } else {
@@ -9,11 +9,11 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     ctx.scale(0.5, 0.5);
+    ctx.fillStyle = "#000";
 
     var lineHeight = 100;
 
     var charsToRender = [];
-    var backspaceCount = 0;
 
     function renderChar(charToRender) {
       if (charToRender.pathData) {
@@ -21,24 +21,13 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
 
         ctx.save();
         ctx.translate(charToRender.x, charToRender.y);
-        if (charToRender.fill) {
-          ctx.fillStyle = 'rgba(0, 0, 0, ' + (1 - Math.min(0.9, charToRender.holdTime / 1000)) + ')'
-          ctx.fill(p);
-        }
-        else {
-          ctx.lineWidth = 0.5;
-          ctx.strokeStyle = 'rgba(0, 0, 0, ' + (1 - Math.min(0.9, charToRender.holdTime / 1000)) + ')'
-          ctx.stroke(p);
-        }
+        ctx.fillStyle = "#000";
+        ctx.fill(p);
         ctx.restore();
       }
     }
 
     function onCharHandler(char, holdTime, delayTime) {
-      var isBackspace = backspaceCount > 0;
-      if (isBackspace) {
-        backspaceCount--;
-      }
       if (char == 'Enter') {
         var cursorY = lineHeight;
         if (charsToRender.length) {
@@ -56,14 +45,17 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
         return;
       }
 
-      var s = char.toUpperCase();
+      var s = char//.toUpperCase();
       var glyph = font.charToGlyph(s);
       var pathData = glyph.getPath().toPathData();
 
-      var xScaleFactor = 1 + delayTime / 1000;
+      var xScaleFactor = 1 + delayTime / 400;
+      // var yScaleFactor = 1 - holdTime / 500;
+      // if (yScaleFactor < 0.1) yScaleFactor = 0.1;
+      var yScaleFactor = 1;
 
       var transformedPath = Snap.path.map(pathData,
-                    new Snap.Matrix().scale(xScaleFactor, 1));
+                    new Snap.Matrix().scale(xScaleFactor, yScaleFactor));
 
       // var commands = Snap.path.toCubic(transformedPath);
       // var path = commandsToOpentypePath(commands);
@@ -80,7 +72,6 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
         advanceWidth: advanceWidth,
         delayTime: delayTime,
         holdTime: holdTime,
-        fill: !isBackspace,
       }
 
       var cursorX = 0;
@@ -99,10 +90,9 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     }
 
     var backspace = function() {
-      backspaceCount++;
       var deleted = charsToRender.pop();
       ctx.fillStyle = '#fff';
-      ctx.fillRect(deleted.x, deleted.y - lineHeight, deleted.advanceWidth, lineHeight + 5)
+      ctx.fillRect(deleted.x, deleted.y - lineHeight / 2, deleted.advanceWidth, lineHeight * 2)
     }
 
     processKeys(onCharHandler, backspace);
@@ -139,6 +129,9 @@ function processKeys(onCharHandler, backspace) {
   wrapper.addEventListener('focus', function(e) {
     textarea.focus();
   });
+  window.addEventListener('focus', function(e) {
+    textarea.focus();
+  });
 
   var keysDownToHoldTime = {};
   var keysDownToDelayTime = {};
@@ -165,9 +158,6 @@ function processKeys(onCharHandler, backspace) {
     var char = keysDownToChar[e.key];
 
     if (char) {
-      if (delayTime > 5000) {
-        delayTime = 0;
-      }
       onCharHandler(char, holdTime, delayTime);
     }
 
