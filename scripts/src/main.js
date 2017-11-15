@@ -92,7 +92,7 @@ opentype.load('fonts/CDType - Dense Bold.otf', function(err, font) {
     var backspace = function() {
       var deleted = charsToRender.pop();
       ctx.fillStyle = '#fff';
-      ctx.fillRect(deleted.x, deleted.y - lineHeight / 2, deleted.advanceWidth, lineHeight * 2)
+      ctx.fillRect(deleted.x, deleted.y - lineHeight * 0.8, deleted.advanceWidth, lineHeight * 1.2)
     }
 
     processKeys(onCharHandler, backspace);
