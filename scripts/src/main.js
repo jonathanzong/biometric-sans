@@ -1,4 +1,4 @@
-opentype.load('fonts/CDType - Dense Bold.otf', function(err, font) {
+opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
   if (err) {
      alert('Font could not be loaded: ' + err);
 } else {
@@ -45,7 +45,7 @@ opentype.load('fonts/CDType - Dense Bold.otf', function(err, font) {
         return;
       }
 
-      var s = char//.toUpperCase();
+      var s = char.toUpperCase();
       var glyph = font.charToGlyph(s);
       var pathData = glyph.getPath().toPathData();
 
