@@ -16,6 +16,8 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
          fill: 'none',
          stroke: '#000',
          strokeWidth: 2,
+         strokeLinecap: 'butt',
+         strokeLinejoin: 'bevel',
         }));
         g.attr('transform', 'translate(' + charToRender.x + ', ' + charToRender.y + ')');
         charToRender.elem = g;
