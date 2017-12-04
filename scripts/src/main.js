@@ -21,6 +21,15 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       }
     }
 
+    function draw() {
+      s.clear();
+      for (var i = 0, len = charsToRender.length; i < len; i++) {
+        renderChar(charsToRender[i]);
+      }
+      window.requestAnimationFrame(draw);
+    }
+    window.requestAnimationFrame(draw);
+
     function onCharHandler(char, holdTime, delayTime) {
       if (char == 'Enter') {
         var cursorY = lineHeight;
@@ -71,8 +80,6 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       charToRender.pathData = transformedPath;
 
       charsToRender.push(charToRender);
-
-      renderChar(charToRender);
     }
 
     var backspace = function() {
