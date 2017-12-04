@@ -2,6 +2,9 @@ body, html {
   margin: 0;
   padding: 0;
 }
+#text-editor {
+  overflow-y: scroll;
+}
 #textarea {
   position: fixed;
   bottom: -25px;
@@ -10,6 +13,6 @@ body, html {
   height: 10px;
 }
 #svg {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 500vh;
 }

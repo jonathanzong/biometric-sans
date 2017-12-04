@@ -1,4 +1,4 @@
-opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
+opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
   if (err) {
      alert('Font could not be loaded: ' + err);
 } else {
@@ -15,7 +15,7 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
          path: charToRender.pathData,
          fill: 'none',
          stroke: '#000',
-         strokeWidth: 1,
+         strokeWidth: 2,
         }));
         g.attr('transform', 'translate(' + charToRender.x + ', ' + charToRender.y + ')');
         charToRender.elem = g;
@@ -82,7 +82,9 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
 
     var backspace = function() {
       var deleted = charsToRender.pop();
-      deleted.elem.remove();
+      if (deleted) {
+        deleted.elem.remove();
+      }
     }
 
     processKeys(onCharHandler, backspace);
