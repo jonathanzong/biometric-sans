@@ -13,10 +13,9 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       if (charToRender.pathData) {
         var g = s.group(s.path({
          path: charToRender.pathData,
-         fill: '#bada55',
-         stroke: '#c00',
-         strokeWidth: 0,
-         strokeLinecap: 'round',
+         fill: 'none',
+         stroke: '#000',
+         strokeWidth: 1,
         }));
         g.attr('transform', 'translate(' + charToRender.x + ', ' + charToRender.y + ')');
         charToRender.elem = g;
