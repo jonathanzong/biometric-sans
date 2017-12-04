@@ -2,14 +2,7 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
   if (err) {
      alert('Font could not be loaded: ' + err);
 } else {
-    var dummy = document.getElementById('dummycanvas');
-    var canvas = document.getElementById('canvas');
-
-    var ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    ctx.scale(0.5, 0.5);
-    ctx.fillStyle = "#000";
+    var s = Snap('#svg');
 
     var lineHeight = 100;
 
@@ -17,13 +10,14 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
 
     function renderChar(charToRender) {
       if (charToRender.pathData) {
-        var p = new Path2D(charToRender.pathData);
-
-        ctx.save();
-        ctx.translate(charToRender.x, charToRender.y);
-        ctx.fillStyle = "#000";
-        ctx.fill(p);
-        ctx.restore();
+        var g = s.group(s.path({
+         path: charToRender.pathData,
+         fill: '#bada55',
+         stroke: '#c00',
+         strokeWidth: 0,
+         strokeLinecap: 'round',
+        }));
+        g.attr('transform', 'translate(' + charToRender.x + ', ' + charToRender.y + ')');
       }
     }
 
@@ -49,26 +43,12 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       var glyph = font.charToGlyph(s);
       var pathData = glyph.getPath().toPathData();
 
-      var xScaleFactor = 1 + delayTime / 400;
-      // var yScaleFactor = 1 - holdTime / 500;
-      // if (yScaleFactor < 0.1) yScaleFactor = 0.1;
-      var yScaleFactor = 1;
-
-      var transformedPath = Snap.path.map(pathData,
-                    new Snap.Matrix().scale(xScaleFactor, yScaleFactor));
-
-      // var commands = Snap.path.toCubic(transformedPath);
-      // var path = commandsToOpentypePath(commands);
-
-      // var newPathData = commands.toString();
-      var newPathData = transformedPath;
+      var xScaleFactor = 0.5 + delayTime / 300;
 
       var advanceWidth = font.getAdvanceWidth(s) * xScaleFactor;
 
       var charToRender = {
-        // commands: commands,
         glyph: glyph,
-        pathData: newPathData,
         advanceWidth: advanceWidth,
         delayTime: delayTime,
         holdTime: holdTime,
@@ -84,6 +64,12 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       charToRender.x = cursorX;
       charToRender.y = cursorY;
 
+      var transformedPath = Snap.path.map(pathData,
+                    new Snap.Matrix()
+                            .scale(xScaleFactor, 1));
+
+      charToRender.pathData = transformedPath;
+
       charsToRender.push(charToRender);
 
       renderChar(charToRender);
@@ -91,8 +77,6 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
 
     var backspace = function() {
       var deleted = charsToRender.pop();
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(deleted.x, deleted.y - lineHeight * 0.8, deleted.advanceWidth, lineHeight * 1.2)
     }
 
     processKeys(onCharHandler, backspace);
@@ -125,7 +109,7 @@ function processKeys(onCharHandler, backspace) {
   var textarea = document.getElementById('textarea');
   textarea.focus();
 
-  var wrapper = document.getElementById('canvas-text-editor');
+  var wrapper = document.getElementById('text-editor');
   wrapper.addEventListener('focus', function(e) {
     textarea.focus();
   });
