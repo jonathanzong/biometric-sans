@@ -7,6 +7,7 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
     var lineHeight = 100;
 
     var charsToRender = [];
+    var lastRendered = [];
 
     function renderChar(charToRender) {
       if (charToRender.pathData) {
@@ -18,17 +19,9 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
          strokeLinecap: 'round',
         }));
         g.attr('transform', 'translate(' + charToRender.x + ', ' + charToRender.y + ')');
+        charToRender.elem = g;
       }
     }
-
-    function draw() {
-      s.clear();
-      for (var i = 0, len = charsToRender.length; i < len; i++) {
-        renderChar(charsToRender[i]);
-      }
-      window.requestAnimationFrame(draw);
-    }
-    window.requestAnimationFrame(draw);
 
     function onCharHandler(char, holdTime, delayTime) {
       if (char == 'Enter') {
@@ -70,6 +63,10 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
         charsToRender[charsToRender.length - 1].advanceWidth;
         cursorY = charsToRender[charsToRender.length - 1].y;
       }
+      if (cursorX + advanceWidth > window.innerWidth) {
+        cursorX = 0;
+        cursorY += lineHeight;
+      }
       charToRender.x = cursorX;
       charToRender.y = cursorY;
 
@@ -80,10 +77,13 @@ opentype.load('fonts/Roadline-Regular_gdi.ttf', function(err, font) {
       charToRender.pathData = transformedPath;
 
       charsToRender.push(charToRender);
+
+      renderChar(charToRender);
     }
 
     var backspace = function() {
       var deleted = charsToRender.pop();
+      deleted.elem.remove();
     }
 
     processKeys(onCharHandler, backspace);
