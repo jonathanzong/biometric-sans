@@ -3,7 +3,7 @@ body, html {
   padding: 0;
 }
 #text-editor {
-  overflow-y: scroll;
+  overflow: scroll;
 }
 #textarea {
   position: fixed;
@@ -13,6 +13,7 @@ body, html {
   height: 10px;
 }
 #svg {
-  width: 100vw;
-  height: 500vh;
+  border: 1px solid black;
+  width: 44in;
+  height: 66in;
 }

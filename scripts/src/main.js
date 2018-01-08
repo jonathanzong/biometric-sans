@@ -64,7 +64,7 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
         charsToRender[charsToRender.length - 1].advanceWidth;
         cursorY = charsToRender[charsToRender.length - 1].y;
       }
-      if (cursorX + advanceWidth > window.innerWidth) {
+      if (cursorX + advanceWidth > document.getElementById('svg').offsetWidth) {
         cursorX = 0;
         cursorY += lineHeight;
       }
@@ -84,9 +84,9 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
 
     var backspace = function() {
       var deleted = charsToRender.pop();
-      if (deleted) {
-        deleted.elem.remove();
-      }
+      // if (deleted && deleted.elem) {
+      //   deleted.elem.remove();
+      // }
     }
 
     processKeys(onCharHandler, backspace);
