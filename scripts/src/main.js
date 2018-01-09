@@ -30,14 +30,15 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
         g.attr('transform', 'translate(' + charToRender.x + ', ' + charToRender.y + ')');
         charToRender.elem = g;
 
-        canvas.width = charToRender.advanceWidth;
-        canvas.height = 100;
+        canvas.width = 100;
+        canvas.height = charToRender.advanceWidth;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         var ps = charToRender.pathData.map(function(x) {return x.join(' ');}).join(' ') + 'z';
         var p = new Path2D(ps);
 
         ctx.save();
-        ctx.translate(0, 72);
+        ctx.translate(20, 0);
+        ctx.rotate(Math.PI/2);
         ctx.stroke(p);
         ctx.restore();
         socket.emit('word', canvas.toDataURL());

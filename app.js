@@ -26,14 +26,14 @@ io.on('connection', function(client){
     var base64String = data.replace('data:image/png;base64,', '');
     fs.writeFileSync(__dirname + '/tmp/out.png', base64String, 'base64');
 
-    escpos.Image.load(__dirname + '/tmp/out.png', function(image) {
-      device.open(function(){
-        printer
-        .align('ct')
-        .raster(image)
-        .flush();
-      });
-    });
+    // escpos.Image.load(__dirname + '/tmp/out.png', function(image) {
+    //   device.open(function(){
+    //     printer
+    //     .align('ct')
+    //     .raster(image)
+    //     .flush();
+    //   });
+    // });
 
   });
 });
