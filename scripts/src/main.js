@@ -9,6 +9,14 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
     var charsToRender = [];
     var lastRendered = [];
 
+    var socket = io('http://localhost:3000');
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'bevel';
+
     function renderChar(charToRender) {
       if (charToRender.pathData) {
         var g = s.group(s.path({
@@ -21,6 +29,18 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
         }));
         g.attr('transform', 'translate(' + charToRender.x + ', ' + charToRender.y + ')');
         charToRender.elem = g;
+
+        canvas.width = charToRender.advanceWidth;
+        canvas.height = 100;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var ps = charToRender.pathData.map(function(x) {return x.join(' ');}).join(' ') + 'z';
+        var p = new Path2D(ps);
+
+        ctx.save();
+        ctx.translate(0, 72);
+        ctx.stroke(p);
+        ctx.restore();
+        socket.emit('word', canvas.toDataURL());
       }
     }
 

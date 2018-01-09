@@ -17,3 +17,8 @@ body, html {
   width: 44in;
   height: 66in;
 }
+#canvas {
+  position: fixed;
+  bottom: -100px;
+  left: 0;
+}
