@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "async": "^2.6.0",
     "escpos": "^2.4.5",
     "express": "^4.16.2",
     "socket.io": "^2.0.4"

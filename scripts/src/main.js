@@ -17,27 +17,33 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
     ctx.lineCap = 'butt';
     ctx.lineJoin = 'bevel';
 
+    var scale = 4;
+
     function renderChar(charToRender) {
       if (charToRender.pathData) {
-        var g = s.group(s.path({
+        var sp = s.path({
          path: charToRender.pathData,
          fill: 'none',
          stroke: '#000',
          strokeWidth: 2,
          strokeLinecap: 'butt',
          strokeLinejoin: 'bevel',
-        }));
+        });
+        var g = s.group(sp);
         g.attr('transform', 'translate(' + charToRender.x + ', ' + charToRender.y + ')');
         charToRender.elem = g;
 
-        canvas.width = 100;
-        canvas.height = charToRender.advanceWidth;
+        var bbox = sp.getBBox();
+
+        canvas.width = scale * 100;
+        canvas.height = scale * (bbox.w + 5);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         var ps = charToRender.pathData.map(function(x) {return x.join(' ');}).join(' ') + 'z';
         var p = new Path2D(ps);
 
         ctx.save();
-        ctx.translate(20, 0);
+        ctx.scale(scale, scale);
+        ctx.translate(20, -bbox.x + 2.5);
         ctx.rotate(Math.PI/2);
         ctx.stroke(p);
         ctx.restore();
@@ -67,7 +73,7 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
       var glyph = font.charToGlyph(s);
       var pathData = glyph.getPath().toPathData();
 
-      var xScaleFactor = 0.5 + delayTime / 300;
+      var xScaleFactor = 0.1 + delayTime / 300;
 
       var advanceWidth = font.getAdvanceWidth(s) * xScaleFactor;
 
