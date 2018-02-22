@@ -84,9 +84,9 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
 
     var backspace = function() {
       var deleted = charsToRender.pop();
-      // if (deleted && deleted.elem) {
-      //   deleted.elem.remove();
-      // }
+      if (deleted && deleted.elem) {
+        deleted.elem.remove();
+      }
     }
 
     processKeys(onCharHandler, backspace);
