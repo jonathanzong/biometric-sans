@@ -1,28 +1,20 @@
 "use strict";
 
-const escpos = require('escpos');
-
-const find = escpos.USB.findPrinter()[0];
-// Select the adapter based on your printer type
-const device  = new escpos.USB(find.deviceDescriptor.idVendor,
-                               find.deviceDescriptor.idProduct);
-
-const printer = new escpos.Printer(device);
-
-//
-
 var fs = require('fs');
 var async = require('async');
 
+var json_path = __dirname + '/tmp/letters.json';
+
+fs.writeFile(json_path, "[]", { flag: 'wx' }, function (err) {});
+
 var q = async.queue(function(task, callback) {
-  escpos.Image.load(task.path, function(image) {
-    device.open(function(){
-      printer
-      .align('ct')
-      .image(image)
-      .flush(function() {
-        callback();
-      });
+  // append new letter
+  fs.readFile(json_path, function (err, data) {
+    var json = JSON.parse(data);
+    json.push(task);
+
+    fs.writeFile(json_path, JSON.stringify(json, null, 2), function(){
+      callback();
     });
   });
 });
@@ -41,14 +33,12 @@ var io = require('socket.io')(server);
 var x = 0;
 
 io.on('connection', function(client){
-  client.on('word', function(data){
-    var base64String = data.replace('data:image/png;base64,', '');
+  client.on('letter', function(data){
+    var base64String = data.img.replace('data:image/png;base64,', '');
 
-    var path = __dirname + '/tmp/out' + (x++) + '.png';
-    if (x > 10000000) x = 0;
-
-    fs.writeFile(path, base64String, 'base64', function() {
-      q.push({path: path});
+    q.push({
+      img: base64String,
+      delay: data.delay
     });
 
   });
@@ -61,4 +51,3 @@ console.log('listening 3000')
 
 
 //
-

@@ -1,4 +1,4 @@
-opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
+opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
   if (err) {
      alert('Font could not be loaded: ' + err);
 } else {
@@ -47,7 +47,11 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
         ctx.rotate(Math.PI/2);
         ctx.stroke(p);
         ctx.restore();
-        socket.emit('word', canvas.toDataURL());
+        socket.emit('letter', {
+          delay: charToRender.delayTime,
+          img: canvas.toDataURL(),
+          which: charToRender.which
+        });
       }
     }
 
@@ -82,6 +86,7 @@ opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
         advanceWidth: advanceWidth,
         delayTime: delayTime,
         holdTime: holdTime,
+        which: s
       }
 
       var cursorX = 0;
