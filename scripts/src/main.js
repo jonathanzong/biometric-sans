@@ -1,4 +1,4 @@
-opentype.load('fonts/OLFSimpleSans-Regular_a.ttf', function(err, font) {
+opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
   if (err) {
      alert('Font could not be loaded: ' + err);
 } else {
