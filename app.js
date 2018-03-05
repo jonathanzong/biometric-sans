@@ -1,20 +1,33 @@
 "use strict";
 
+const escpos = require('escpos');
+
+const find = escpos.USB.findPrinter()[0];
+// Select the adapter based on your printer type
+const device  = new escpos.USB(find.deviceDescriptor.idVendor,
+                               find.deviceDescriptor.idProduct);
+
+const printer = new escpos.Printer(device);
+
+//
+
 var fs = require('fs');
 var async = require('async');
 
-var json_path = __dirname + '/tmp/letters.json';
-
-fs.writeFile(json_path, "[]", { flag: 'wx' }, function (err) {});
+var sleep = require('sleep');
 
 var q = async.queue(function(task, callback) {
-  // append new letter
-  fs.readFile(json_path, function (err, data) {
-    var json = JSON.parse(data);
-    json.push(task);
+  console.log(task);
+  sleep.msleep(task.sleep);
 
-    fs.writeFile(json_path, JSON.stringify(json, null, 2), function(){
-      callback();
+  escpos.Image.load(task.path, function(image) {
+    device.open(function(){
+      printer
+      .align('ct')
+      .image(image)
+      .flush(function() {
+        callback();
+      });
     });
   });
 });
@@ -25,29 +38,33 @@ q.drain = function() {
 
 //
 
-const express = require('express');
-const app = express();
+var TOTAL_TIME_MILLISECONDS = 5 * 24 * 60 * 60 * 1000;
 
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
-var x = 0;
+fs.readFile('./letters-ifuf-1.json', function(err, data) {
+  var json = JSON.parse(data);
+  var x = 0;
 
-io.on('connection', function(client){
-  client.on('letter', function(data){
-    var base64String = data.img.replace('data:image/png;base64,', '');
+  var total_time = 0;
+  for (var i = 0, len = json.length; i < len; i++) {
+    total_time += json[i].delay;
+  }
 
-    q.push({
-      img: base64String,
-      delay: data.delay
-    });
+  var SCALE_FACTOR = TOTAL_TIME_MILLISECONDS / total_time;
 
-  });
+  for (var i = 0, len = json.length; i < len; i++) {
+    setTimeout(function(i) {
+      var path = __dirname + '/tmp/out' + (x++) + '.png';
+      if (x > 10000000) x = 0;
+
+      var sleepTime = Math.round(json[i].delay * SCALE_FACTOR);
+
+      fs.writeFile(path, json[i].img, 'base64', function() {
+        q.push({
+          path: path,
+          sleep: sleepTime
+        });
+      });
+    }.bind(null, i), 0);
+  }
+
 });
-
-app.use(express.static(__dirname));
-
-server.listen(3000);
-console.log('listening 3000')
-
-
-//
