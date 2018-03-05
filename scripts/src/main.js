@@ -49,8 +49,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
         ctx.restore();
         socket.emit('letter', {
           delay: charToRender.delayTime,
-          img: canvas.toDataURL(),
-          which: charToRender.which
+          img: canvas.toDataURL()
         });
       }
     }
