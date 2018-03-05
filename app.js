@@ -17,19 +17,24 @@ var async = require('async');
 var sleep = require('sleep');
 
 var q = async.queue(function(task, callback) {
-  console.log(task);
-  sleep.msleep(task.sleep);
+  console.log(task.sleep);
+  if (task.sleep)
+    sleep.msleep(task.sleep);
 
-  escpos.Image.load(task.path, function(image) {
-    device.open(function(){
-      printer
-      .align('ct')
-      .image(image)
-      .flush(function() {
-        callback();
+  var path = './tmp/out.png';
+  fs.writeFile(path, task.img, 'base64', function() {
+    escpos.Image.load(path, function(image) {
+      device.open(function(){
+        printer
+        .align('ct')
+        .image(image)
+        .flush(function() {
+          callback();
+        });
       });
     });
   });
+
 });
 
 q.drain = function() {
@@ -42,7 +47,6 @@ var TOTAL_TIME_MILLISECONDS = 5 * 24 * 60 * 60 * 1000;
 
 fs.readFile('./letters-ifuf-1.json', function(err, data) {
   var json = JSON.parse(data);
-  var x = 0;
 
   var total_time = 0;
   for (var i = 0, len = json.length; i < len; i++) {
@@ -53,16 +57,11 @@ fs.readFile('./letters-ifuf-1.json', function(err, data) {
 
   for (var i = 0, len = json.length; i < len; i++) {
     setTimeout(function(i) {
-      var path = __dirname + '/tmp/out' + (x++) + '.png';
-      if (x > 10000000) x = 0;
-
       var sleepTime = Math.round(json[i].delay * SCALE_FACTOR);
 
-      fs.writeFile(path, json[i].img, 'base64', function() {
-        q.push({
-          path: path,
-          sleep: sleepTime
-        });
+      q.push({
+        img: json[i].img,
+        sleep: sleepTime
       });
     }.bind(null, i), 0);
   }
