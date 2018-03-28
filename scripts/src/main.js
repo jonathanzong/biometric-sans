@@ -4,7 +4,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
 } else {
     var s = Snap('#svg');
 
-    var lineHeight = 100;
+    var lineHeight = 80;
 
     var charsToRender = [];
     var lastRendered = [];

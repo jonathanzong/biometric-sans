@@ -13,7 +13,7 @@ body, html {
   height: 10px;
 }
 #svg {
-  border: 1px solid black;
+  /*border: 1px solid black;*/
   width: 44in;
   height: 66in;
 }
