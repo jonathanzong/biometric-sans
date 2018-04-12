@@ -167,3 +167,16 @@ function processKeys(onCharHandler, backspace) {
 function now() {
   return +(new Date);
 }
+
+function download(filename) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(document.getElementById('svg-wrap').innerHTML));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
