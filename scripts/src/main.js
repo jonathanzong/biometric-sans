@@ -46,7 +46,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       var glyph = font.charToGlyph(s);
       var pathData = glyph.getPath().toPathData();
 
-      var xScaleFactor = 0.5 + delayTime / 300;
+      var xScaleFactor = 0.2 + delayTime / 300;
 
       var advanceWidth = font.getAdvanceWidth(s) * xScaleFactor;
 
