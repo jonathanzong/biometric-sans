@@ -64,7 +64,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
         charsToRender[charsToRender.length - 1].advanceWidth;
         cursorY = charsToRender[charsToRender.length - 1].y;
       }
-      if (cursorX + advanceWidth > document.getElementById('svg').offsetWidth) {
+      if (cursorX + advanceWidth > document.getElementById('svg-wrap').offsetWidth) {
         cursorX = 0;
         cursorY += lineHeight;
       }
