@@ -3,7 +3,7 @@ body, html {
   padding: 0;
 }
 #text-editor {
-  overflow: scroll;
+  overflow: hidden;
 }
 #textarea {
   position: fixed;
