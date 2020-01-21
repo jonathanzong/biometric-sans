@@ -1,11 +1,3 @@
-var timeout = null;
-function resetTimeout() {
-  clearTimeout(timeout);
-  timeout = setTimeout(function() {
-    window.location.reload();
-  }, 30 * 1000); // after 30 seconds no interaction, refresh
-}
-
 opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
   if (err) {
      alert('Font could not be loaded: ' + err);
@@ -161,7 +153,6 @@ function processKeys(onCharHandler, backspace) {
     var char = keysDownToChar[e.key];
 
     if (char) {
-      resetTimeout();
       onCharHandler(char, holdTime, delayTime);
     }
 
