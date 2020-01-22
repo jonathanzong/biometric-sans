@@ -7,7 +7,6 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
     var lineHeight = 80;
 
     var charsToRender = [];
-    var lastRendered = [];
 
     function renderChar(charToRender) {
       if (charToRender.pathData) {
@@ -22,6 +21,12 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
         g.attr('transform', 'translate(' + charToRender.x + ', ' + charToRender.y + ')');
         charToRender.elem = g;
       }
+    }
+
+    function updateCursor() {
+      var g = Snap.select("#cursor");
+      var charToRender = charsToRender.length ? charsToRender[charsToRender.length - 1] : {x: 0, advanceWidth:0, y: 0};
+      g.attr('transform', 'translate(' + (charToRender.x + charToRender.advanceWidth + 5) + ', ' + charToRender.y + ')');
     }
 
     function onCharHandler(char, holdTime, delayTime) {
@@ -81,6 +86,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       charsToRender.push(charToRender);
 
       renderChar(charToRender);
+      updateCursor();
     }
 
     var backspace = function() {
@@ -88,6 +94,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       if (deleted && deleted.elem) {
         deleted.elem.remove();
       }
+      updateCursor();
     }
 
     processKeys(onCharHandler, backspace);
