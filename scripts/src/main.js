@@ -26,7 +26,11 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
     function updateCursor() {
       var g = Snap.select("#cursor");
       var charToRender = charsToRender.length ? charsToRender[charsToRender.length - 1] : {x: 0, advanceWidth:0, y: 0};
-      g.attr('transform', 'translate(' + (charToRender.x + charToRender.advanceWidth + 5) + ', ' + charToRender.y + ')');
+      var x = charToRender.x + charToRender.advanceWidth + 5;
+      if (x > document.getElementById('svg-wrap').offsetWidth) {
+        x = document.getElementById('svg-wrap').offsetWidth - 25;
+      }
+      g.attr('transform', 'translate(' + x + ', ' + charToRender.y + ')');
     }
 
     function onCharHandler(char, holdTime, delayTime) {
@@ -40,6 +44,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
           x: 0,
           y: cursorY + lineHeight
         });
+        updateCursor();
         return;
       }
       if (char.length > 1) {
