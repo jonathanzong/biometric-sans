@@ -39,12 +39,14 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
         if (charsToRender.length) {
           cursorY = charsToRender[charsToRender.length - 1].y;
         }
-        charsToRender.push({
-          advanceWidth: 0,
-          x: 0,
-          y: cursorY + lineHeight
-        });
-        updateCursor();
+        if (cursorY + lineHeight < document.getElementById('svg-wrap').offsetHeight) {
+          charsToRender.push({
+            advanceWidth: 0,
+            x: 0,
+            y: cursorY + lineHeight
+          });
+          updateCursor();
+        }
         return;
       }
       if (char.length > 1) {
