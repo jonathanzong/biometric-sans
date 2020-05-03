@@ -1,9 +1,10 @@
 body, html {
   margin: 0;
   padding: 0;
+  cursor: none;
 }
 #text-editor {
-  overflow: scroll;
+  overflow: hidden;
 }
 #textarea {
   position: fixed;
@@ -14,8 +15,8 @@ body, html {
 }
 #svg {
   /*border: 1px solid black;*/
-  width: 44in;
-  height: 66in;
+  width: 100vw;
+  height: 100vh;
 }
 #download-form {
   position: fixed;

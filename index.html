@@ -7,11 +7,32 @@
 <script src="scripts/src/main.js"></script>
 
 <div id="text-editor" tabindex="0">
-  <div id="svg-wrap"><svg id="svg"></svg></div>
+  <div id="svg-wrap">
+    <svg id="svg">
+      <g id="cursor" transform="matrix(1,0,0,1,5,80)">
+        <!-- <path d="M1.612,-26.64C1.612,-26.64,1.598,0.72,1.598,0.72C1.598,0.72,1.612,-26.64,1.612,-26.64C1.612,-26.64,1.598,-51.34,1.598,-51.34C1.598,-51.34,1.612,-26.64,1.612,-26.64C1.612,-26.64,1.612,-26.64,1.612,-26.64" fill="none" stroke="#000000" style="stroke-width: 2; stroke-linecap: butt; stroke-linejoin: bevel;">
+            <animate
+              attributeType="XML"
+              attributeName="stroke"
+              values="#fff;#07f;#fff;#fff"
+              dur="1.2s"
+              repeatCount="indefinite"/>
+        </path> -->
+        <rect width="20" height="60" transform="translate(0 -55)">
+            <animate
+              attributeType="XML"
+              attributeName="fill"
+              values="#fff;#07f;#fff;#fff"
+              dur="1.2s"
+              repeatCount="indefinite"/>
+        </rect>
+      </g>
+    </svg>
+  </div>
   <textarea id="textarea" tabindex="-1" autofocus></textarea>
 </div>
 
-<form id="download-form" onsubmit="download(this['filename'].value); return false;">
+<!-- <form id="download-form" onsubmit="download(this['filename'].value); return false;">
   <input type="text" name="filename" value="biometric-sans.svg">
   <input type="submit" value="download svg">
-</form>
+</form> -->

@@ -7,7 +7,6 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
     var lineHeight = 80;
 
     var charsToRender = [];
-    var lastRendered = [];
 
     function renderChar(charToRender) {
       if (charToRender.pathData) {
@@ -24,17 +23,30 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       }
     }
 
+    function updateCursor() {
+      var g = Snap.select("#cursor");
+      var charToRender = charsToRender.length ? charsToRender[charsToRender.length - 1] : {x: 0, advanceWidth:0, y: 0};
+      var x = charToRender.x + charToRender.advanceWidth + 5;
+      if (x > document.getElementById('svg-wrap').offsetWidth) {
+        x = document.getElementById('svg-wrap').offsetWidth - 25;
+      }
+      g.attr('transform', 'translate(' + x + ', ' + charToRender.y + ')');
+    }
+
     function onCharHandler(char, holdTime, delayTime) {
       if (char == 'Enter') {
         var cursorY = lineHeight;
         if (charsToRender.length) {
           cursorY = charsToRender[charsToRender.length - 1].y;
         }
-        charsToRender.push({
-          advanceWidth: 0,
-          x: 0,
-          y: cursorY + lineHeight
-        });
+        if (cursorY + lineHeight < document.getElementById('svg-wrap').offsetHeight) {
+          charsToRender.push({
+            advanceWidth: 0,
+            x: 0,
+            y: cursorY + lineHeight
+          });
+          updateCursor();
+        }
         return;
       }
       if (char.length > 1) {
@@ -64,8 +76,14 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
         charsToRender[charsToRender.length - 1].advanceWidth;
         cursorY = charsToRender[charsToRender.length - 1].y;
       }
-      if (cursorX + advanceWidth > document.getElementById('svg-wrap').offsetWidth) {
-        cursorX = charsToRender[charsToRender.length - 1].x
+      const svgWidth = document.getElementById('svg-wrap').offsetWidth;
+      if (cursorX + advanceWidth > svgWidth) {
+        if ( charsToRender[charsToRender.length - 1].x + 50 > svgWidth) {
+          cursorX = charsToRender[charsToRender.length - 1].x
+        }
+        else {
+          cursorX = svgWidth - 50;
+        }
         // cursorX = 0;
         // cursorY += lineHeight;
       }
@@ -81,6 +99,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       charsToRender.push(charToRender);
 
       renderChar(charToRender);
+      updateCursor();
     }
 
     var backspace = function() {
@@ -88,6 +107,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       if (deleted && deleted.elem) {
         deleted.elem.remove();
       }
+      updateCursor();
     }
 
     processKeys(onCharHandler, backspace);
