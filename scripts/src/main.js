@@ -76,8 +76,14 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
         charsToRender[charsToRender.length - 1].advanceWidth;
         cursorY = charsToRender[charsToRender.length - 1].y;
       }
-      if (cursorX + advanceWidth > document.getElementById('svg-wrap').offsetWidth) {
-        cursorX = charsToRender[charsToRender.length - 1].x
+      const svgWidth = document.getElementById('svg-wrap').offsetWidth;
+      if (cursorX + advanceWidth > svgWidth) {
+        if ( charsToRender[charsToRender.length - 1].x + 50 > svgWidth) {
+          cursorX = charsToRender[charsToRender.length - 1].x
+        }
+        else {
+          cursorX = svgWidth - 50;
+        }
         // cursorX = 0;
         // cursorY += lineHeight;
       }
