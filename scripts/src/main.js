@@ -2,11 +2,15 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
   if (err) {
      alert('Font could not be loaded: ' + err);
 } else {
-    var s = Snap('#svg');
+    var s = Snap('#biometric-sans-svg');
 
     var lineHeight = 80;
 
     var charsToRender = [];
+
+    function updateDescription() {
+      document.querySelector('#biometric-sans-svg desc').innerHTML = charsToRender.map(c => c.char).join('');
+    }
 
     function renderChar(charToRender) {
       if (charToRender.pathData) {
@@ -31,6 +35,8 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
         x = document.getElementById('svg-wrap').offsetWidth - 25;
       }
       g.attr('transform', 'translate(' + x + ', ' + charToRender.y + ')');
+
+      updateDescription();
     }
 
     function onCharHandler(char, holdTime, delayTime) {
@@ -63,6 +69,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       var advanceWidth = font.getAdvanceWidth(s) * xScaleFactor;
 
       var charToRender = {
+        char: s,
         glyph: glyph,
         advanceWidth: advanceWidth,
         delayTime: delayTime,
@@ -181,8 +188,9 @@ function processKeys(onCharHandler, backspace) {
     delete keysDownToChar[e.key];
   });
 
-
-
+  document.querySelector('#biometric-sans-svg desc').id = 'biometric-sans-svg-desc';
+  document.querySelector('#biometric-sans-svg desc').innerHTML = '';
+  document.querySelector('#biometric-sans-svg').setAttribute('aria-labelledby', 'biometric-sans-svg-desc');
 }
 
 function now() {
