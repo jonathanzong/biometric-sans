@@ -85,14 +85,14 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       }
       const svgWidth = document.getElementById('svg-wrap').offsetWidth;
       if (cursorX + advanceWidth > svgWidth) {
-        if ( charsToRender[charsToRender.length - 1].x + 50 > svgWidth) {
-          cursorX = charsToRender[charsToRender.length - 1].x
-        }
-        else {
-          cursorX = svgWidth - 50;
-        }
-        // cursorX = 0;
-        // cursorY += lineHeight;
+        // if ( charsToRender[charsToRender.length - 1].x + 50 > svgWidth) {
+        //   cursorX = charsToRender[charsToRender.length - 1].x
+        // }
+        // else {
+        //   cursorX = svgWidth - 50;
+        // }
+        cursorX = 0;
+        cursorY += lineHeight;
       }
       charToRender.x = cursorX;
       charToRender.y = cursorY;
@@ -163,6 +163,9 @@ function processKeys(onCharHandler, backspace) {
   textarea.addEventListener('keydown', function(e) {
     keysDownToHoldTime[e.key] = now();
     keysDownToDelayTime[e.key] = lastKeyUpTime ? now() - lastKeyUpTime : 0;
+    if (keysDownToDelayTime[e.key] > 5000) {
+      keysDownToDelayTime[e.key] = 0;
+    }
     if (e.key == 'Backspace') {
       backspace();
     }
