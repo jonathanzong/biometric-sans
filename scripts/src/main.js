@@ -9,6 +9,11 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
 
     var charsToRender = [];
 
+    const old = localStorage.getItem('charsToRender');
+    if (old) {
+      charsToRender = JSON.parse(old);
+    }
+
     function updateDescription() {
       document.querySelector('#biometric-sans-svg desc').innerHTML = charsToRender.map(c => c.char).join('');
     }
@@ -48,19 +53,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
           advanceWidth, char, x, y
         }
       });
-      const old = localStorage.getItem('charsToRender');
-      if (old) {
-        const oldChars = JSON.parse(old);
-        if (!oldChars.every((c, index) => serialized[index] === c)) {
-          localStorage.setItem('charsToRender', JSON.stringify(oldChars.concat(serialized)));
-        }
-        else {
-          localStorage.setItem('charsToRender', JSON.stringify(serialized));
-        }
-      }
-      else {
-        localStorage.setItem('charsToRender', JSON.stringify(serialized));
-      }
+      localStorage.setItem('charsToRender', JSON.stringify(serialized));
     }
 
     function onCharHandler(char, holdTime, delayTime) {
