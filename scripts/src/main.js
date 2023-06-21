@@ -5,6 +5,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
     var s = Snap('#biometric-sans-svg');
 
     var lineHeight = 80;
+    var scrollOffset = 0;
 
     var charsToRender = [];
 
@@ -37,21 +38,34 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       g.attr('transform', 'translate(' + x + ', ' + charToRender.y + ')');
 
       updateDescription();
+      saveCharsToRender();
+    }
+
+    function saveCharsToRender() {
+      const serialized = charsToRender.map(c => {
+        const { advanceWidth, char, x, y, ...rest } = c;
+        return {
+          advanceWidth, char, x, y
+        }
+      });
+      localStorage.setItem('charsToRender', JSON.stringify(serialized));
     }
 
     function onCharHandler(char, holdTime, delayTime) {
+      const svgWrap = document.getElementById('svg-wrap');
       if (char == 'Enter') {
         var cursorY = lineHeight;
         if (charsToRender.length) {
           cursorY = charsToRender[charsToRender.length - 1].y;
         }
-        if (cursorY + lineHeight < document.getElementById('svg-wrap').offsetHeight) {
-          charsToRender.push({
-            advanceWidth: 0,
-            x: 0,
-            y: cursorY + lineHeight
-          });
-          updateCursor();
+        charsToRender.push({
+          advanceWidth: 0,
+          x: 0,
+          y: cursorY + lineHeight
+        });
+        updateCursor();
+        if (cursorY - scrollOffset > svgWrap.offsetHeight - lineHeight) {
+          document.getElementById('biometric-sans-svg').setAttribute('viewBox', `0 ${scrollOffset += svgWrap.offsetHeight - 2 * lineHeight} ${svgWrap.offsetWidth} ${svgWrap.offsetHeight}`);
         }
         return;
       }
@@ -83,7 +97,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
         charsToRender[charsToRender.length - 1].advanceWidth;
         cursorY = charsToRender[charsToRender.length - 1].y;
       }
-      const svgWidth = document.getElementById('svg-wrap').offsetWidth;
+      const svgWidth = svgWrap.offsetWidth;
       if (cursorX + advanceWidth > svgWidth) {
         // if ( charsToRender[charsToRender.length - 1].x + 50 > svgWidth) {
         //   cursorX = charsToRender[charsToRender.length - 1].x
