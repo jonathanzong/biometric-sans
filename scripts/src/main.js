@@ -38,6 +38,17 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       g.attr('transform', 'translate(' + x + ', ' + charToRender.y + ')');
 
       updateDescription();
+      saveCharsToRender();
+    }
+
+    function saveCharsToRender() {
+      const serialized = charsToRender.map(c => {
+        const { advanceWidth, char, x, y, ...rest } = c;
+        return {
+          advanceWidth, char, x, y
+        }
+      });
+      localStorage.setItem('charsToRender', JSON.stringify(serialized));
     }
 
     function onCharHandler(char, holdTime, delayTime) {
