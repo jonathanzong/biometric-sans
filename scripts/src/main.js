@@ -54,6 +54,9 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
         if (!oldChars.every((c, index) => serialized[index] === c)) {
           localStorage.setItem('charsToRender', JSON.stringify(oldChars.concat(serialized)));
         }
+        else {
+          localStorage.setItem('charsToRender', JSON.stringify(serialized));
+        }
       }
       else {
         localStorage.setItem('charsToRender', JSON.stringify(serialized));
