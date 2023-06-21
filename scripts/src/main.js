@@ -9,9 +9,9 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
 
     var charsToRender = [];
 
-    const old = localStorage.getItem('charsToRender');
-    if (old) {
-      charsToRender = JSON.parse(old);
+    let oldChars = localStorage.getItem('charsToRender');
+    if (oldChars) {
+      oldChars = JSON.parse(oldChars);
     }
 
     function updateDescription() {
@@ -53,7 +53,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
           advanceWidth, char, x, y
         }
       });
-      localStorage.setItem('charsToRender', JSON.stringify(serialized));
+      localStorage.setItem('charsToRender', JSON.stringify(oldChars.concat(serialized)));
     }
 
     function onCharHandler(char, holdTime, delayTime) {
