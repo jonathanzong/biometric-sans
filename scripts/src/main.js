@@ -12,6 +12,9 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
     if (oldChars) {
       oldChars = JSON.parse(oldChars);
     }
+    else {
+      oldChars = [];
+    }
 
     function updateDescription() {
       document.querySelector('#biometric-sans-svg desc').innerHTML = charsToRender.map(c => c.char).join('');
