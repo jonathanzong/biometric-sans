@@ -37,7 +37,6 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       g.attr('transform', 'translate(' + x + ', ' + charToRender.y + ')');
 
       updateDescription();
-      saveCharsToRender();
     }
 
     function updateRender() {
