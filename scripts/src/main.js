@@ -5,7 +5,6 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
     var s = Snap('#biometric-sans-svg');
 
     var lineHeight = 80;
-    var scrollOffset = 0;
 
     var charsToRender = [];
 
@@ -50,6 +49,8 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       updateCursor();
       resizeSVG();
       updateScroll();
+      clearTimeout(lockTimeout);
+      lockTimeout = setTimeout(lockText, 5*60*1000); // lock text after 5 min idle (for gallery)
     }
 
     function saveCharsToRender() {
@@ -131,7 +132,22 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       updateRender();
     }
 
+    let lockTimeout;
+
+    function lockText() {
+      charsToRender.forEach((charToRender) => {
+        charToRender.locked = true;
+      });
+    }
+
     var backspace = function() {
+      if (charsToRender.length === 0) {
+        return;
+      }
+      const lastChar = charsToRender[charsToRender.length - 1];
+      if (lastChar.locked) {
+        return;
+      }
       var deleted = charsToRender.pop();
       if (deleted && deleted.elem) {
         deleted.elem.remove();
