@@ -4,7 +4,12 @@ body, html {
   cursor: none;
 }
 #text-editor {
-  overflow: hidden;
+  /* overflow: hidden; */
+}
+#svg-wrap {
+  width: 100vw;
+  height: 100vh;
+  overflow: scroll;
 }
 #textarea {
   position: fixed;
@@ -16,7 +21,6 @@ body, html {
 #biometric-sans-svg {
   /*border: 1px solid black;*/
   width: 100vw;
-  height: 100vh;
 }
 #download-form {
   position: fixed;

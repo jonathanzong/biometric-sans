@@ -46,6 +46,12 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       saveCharsToRender();
     }
 
+    function updateRender() {
+      updateCursor();
+      resizeSVG();
+      updateScroll();
+    }
+
     function saveCharsToRender() {
       const serialized = charsToRender.map(c => {
         const { advanceWidth, char, x, y, ...rest } = c;
@@ -68,14 +74,11 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
           x: 0,
           y: cursorY + lineHeight
         });
-        updateCursor();
-        if (cursorY - scrollOffset > svgWrap.offsetHeight - lineHeight) {
-          document.getElementById('biometric-sans-svg').setAttribute('viewBox', `0 ${scrollOffset += svgWrap.offsetHeight - 2 * lineHeight} ${svgWrap.offsetWidth} ${svgWrap.offsetHeight}`);
-        }
+        updateRender();
         return;
       }
       if (char.length > 1) {
-        console.log('oh no,' + char);
+        console.error(char + ' is not a single character');
         return;
       }
 
@@ -125,7 +128,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       charsToRender.push(charToRender);
 
       renderChar(charToRender);
-      updateCursor();
+      updateRender();
     }
 
     var backspace = function() {
@@ -133,7 +136,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       if (deleted && deleted.elem) {
         deleted.elem.remove();
       }
-      updateCursor();
+      updateRender();
     }
 
     processKeys(onCharHandler, backspace);
@@ -230,4 +233,18 @@ function download(filename) {
   element.click();
 
   document.body.removeChild(element);
+}
+
+function resizeSVG() {
+  var  svg = document.getElementById("biometric-sans-svg");
+  // Get the bounds of the SVG content
+  var  bbox = svg.getBBox();
+  // Update the width and height using the size of the contents
+  svg.setAttribute("width", bbox.x + bbox.width + bbox.x);
+  svg.setAttribute("height", bbox.y + bbox.height + bbox.y);
+}
+
+function updateScroll() {
+  const elem = document.getElementById('svg-wrap');
+  elem.scrollTop = elem.scrollHeight;
 }
