@@ -1,3 +1,12 @@
+function showScreensaver() {
+  document.getElementById('screensaver').style.display = 'block';
+}
+
+function hideScreensaver() {
+  document.getElementById('screensaver').style.display = 'none';
+}
+
+
 opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
   if (err) {
      alert('Font could not be loaded: ' + err);
@@ -141,6 +150,7 @@ opentype.load('fonts/OLFSimpleSans-Regular.ttf', function(err, font) {
       charsToRender.forEach((charToRender) => {
         charToRender.locked = true;
       });
+      showScreensaver();
     }
 
     var backspace = function() {
@@ -202,6 +212,7 @@ function processKeys(onCharHandler, backspace) {
   var lastKeyUpTime = 0;
 
   textarea.addEventListener('keydown', function(e) {
+    hideScreensaver();
     keysDownToHoldTime[e.key] = now();
     keysDownToDelayTime[e.key] = lastKeyUpTime ? now() - lastKeyUpTime : 0;
     if (keysDownToDelayTime[e.key] > 5000) {
